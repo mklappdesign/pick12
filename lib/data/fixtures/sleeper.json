@@ -1,0 +1,493 @@
+{
+  "4046": {
+    "player_id": "4046",
+    "first_name": "Justin",
+    "last_name": "Jefferson",
+    "full_name": "Justin Jefferson",
+    "search_full_name": "justinjefferson",
+    "fantasy_positions": [
+      "WR"
+    ],
+    "position": "WR",
+    "active": true,
+    "team": "MIN",
+    "search_rank": 2,
+    "injury_status": null
+  },
+  "7564": {
+    "player_id": "7564",
+    "first_name": "Ja'Marr",
+    "last_name": "Chase",
+    "full_name": "Ja'Marr Chase",
+    "search_full_name": "jamarrchase",
+    "fantasy_positions": [
+      "WR"
+    ],
+    "position": "WR",
+    "active": true,
+    "team": "CIN",
+    "search_rank": 1,
+    "injury_status": null
+  },
+  "11632": {
+    "player_id": "11632",
+    "first_name": "Marvin",
+    "last_name": "Harrison",
+    "full_name": "Marvin Harrison Jr.",
+    "search_full_name": "marvin harrison jr",
+    "fantasy_positions": [
+      "WR"
+    ],
+    "position": "WR",
+    "active": true,
+    "team": "ARI",
+    "search_rank": 20,
+    "injury_status": null
+  },
+  "ARI": {
+    "player_id": "ARI",
+    "first_name": "ARI",
+    "last_name": "Defense",
+    "team": "ARI",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "ATL": {
+    "player_id": "ATL",
+    "first_name": "ATL",
+    "last_name": "Defense",
+    "team": "ATL",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "BAL": {
+    "player_id": "BAL",
+    "first_name": "BAL",
+    "last_name": "Defense",
+    "team": "BAL",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "BUF": {
+    "player_id": "BUF",
+    "first_name": "BUF",
+    "last_name": "Defense",
+    "team": "BUF",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "CAR": {
+    "player_id": "CAR",
+    "first_name": "CAR",
+    "last_name": "Defense",
+    "team": "CAR",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "CHI": {
+    "player_id": "CHI",
+    "first_name": "CHI",
+    "last_name": "Defense",
+    "team": "CHI",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "CIN": {
+    "player_id": "CIN",
+    "first_name": "CIN",
+    "last_name": "Defense",
+    "team": "CIN",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "CLE": {
+    "player_id": "CLE",
+    "first_name": "CLE",
+    "last_name": "Defense",
+    "team": "CLE",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "DAL": {
+    "player_id": "DAL",
+    "first_name": "DAL",
+    "last_name": "Defense",
+    "team": "DAL",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "DEN": {
+    "player_id": "DEN",
+    "first_name": "DEN",
+    "last_name": "Defense",
+    "team": "DEN",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "DET": {
+    "player_id": "DET",
+    "first_name": "DET",
+    "last_name": "Defense",
+    "team": "DET",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "GB": {
+    "player_id": "GB",
+    "first_name": "GB",
+    "last_name": "Defense",
+    "team": "GB",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "HOU": {
+    "player_id": "HOU",
+    "first_name": "Houston",
+    "last_name": "Texans",
+    "team": "HOU",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "IND": {
+    "player_id": "IND",
+    "first_name": "IND",
+    "last_name": "Defense",
+    "team": "IND",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "JAX": {
+    "player_id": "JAX",
+    "first_name": "JAX",
+    "last_name": "Defense",
+    "team": "JAX",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "KC": {
+    "player_id": "KC",
+    "first_name": "KC",
+    "last_name": "Defense",
+    "team": "KC",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "LV": {
+    "player_id": "LV",
+    "first_name": "LV",
+    "last_name": "Defense",
+    "team": "LV",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "LAC": {
+    "player_id": "LAC",
+    "first_name": "LAC",
+    "last_name": "Defense",
+    "team": "LAC",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "LAR": {
+    "player_id": "LAR",
+    "first_name": "LAR",
+    "last_name": "Defense",
+    "team": "LAR",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "MIA": {
+    "player_id": "MIA",
+    "first_name": "MIA",
+    "last_name": "Defense",
+    "team": "MIA",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "MIN": {
+    "player_id": "MIN",
+    "first_name": "MIN",
+    "last_name": "Defense",
+    "team": "MIN",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "NE": {
+    "player_id": "NE",
+    "first_name": "NE",
+    "last_name": "Defense",
+    "team": "NE",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "NO": {
+    "player_id": "NO",
+    "first_name": "NO",
+    "last_name": "Defense",
+    "team": "NO",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "NYG": {
+    "player_id": "NYG",
+    "first_name": "NYG",
+    "last_name": "Defense",
+    "team": "NYG",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "NYJ": {
+    "player_id": "NYJ",
+    "first_name": "NYJ",
+    "last_name": "Defense",
+    "team": "NYJ",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "PHI": {
+    "player_id": "PHI",
+    "first_name": "PHI",
+    "last_name": "Defense",
+    "team": "PHI",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "PIT": {
+    "player_id": "PIT",
+    "first_name": "PIT",
+    "last_name": "Defense",
+    "team": "PIT",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "SEA": {
+    "player_id": "SEA",
+    "first_name": "SEA",
+    "last_name": "Defense",
+    "team": "SEA",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "SF": {
+    "player_id": "SF",
+    "first_name": "SF",
+    "last_name": "Defense",
+    "team": "SF",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "TB": {
+    "player_id": "TB",
+    "first_name": "TB",
+    "last_name": "Defense",
+    "team": "TB",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "TEN": {
+    "player_id": "TEN",
+    "first_name": "TEN",
+    "last_name": "Defense",
+    "team": "TEN",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "WAS": {
+    "player_id": "WAS",
+    "first_name": "WAS",
+    "last_name": "Defense",
+    "team": "WAS",
+    "active": true,
+    "fantasy_positions": [
+      "DEF"
+    ],
+    "position": "DEF",
+    "sport": "nfl",
+    "number": null
+  },
+  "lb-jefferson": {
+    "player_id": "lb-jefferson",
+    "first_name": "Justin",
+    "last_name": "Jefferson",
+    "full_name": "Justin Jefferson",
+    "search_full_name": "justinjefferson",
+    "fantasy_positions": [
+      "LB"
+    ],
+    "position": "LB",
+    "active": true,
+    "team": "CLE",
+    "search_rank": 999,
+    "injury_status": null
+  },
+  "fa-wr": {
+    "player_id": "fa-wr",
+    "first_name": "Free",
+    "last_name": "Agent",
+    "full_name": "Free Agent",
+    "search_full_name": "freeagent",
+    "fantasy_positions": [
+      "WR"
+    ],
+    "position": "WR",
+    "active": true,
+    "team": null,
+    "search_rank": 5000,
+    "injury_status": null
+  }
+}
