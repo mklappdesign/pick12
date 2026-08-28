@@ -1,6 +1,6 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import { Stack, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 
@@ -11,7 +11,11 @@ import { PositionFilterChips, type PositionFilter } from '@/components/PositionF
 import { RightPane } from '@/components/RightPane';
 import { formatRankingsAsOf, useEngineState } from '@/components/useEngineState';
 import type { Player } from '@/lib/data/types';
-import { formatPickClock, picksUntilUser } from '@/lib/engine/snakeMath';
+import { mockSeed } from '@/lib/engine/runMockToUser';
+import { mulberry32 } from '@/lib/engine/rng';
+import { sampleOpponentPick } from '@/lib/engine/sampleOpponentPick';
+import { formatPickClock, picksUntilUser, slotOnClock } from '@/lib/engine/snakeMath';
+import { nextOverall } from '@/lib/state/draftTypes';
 import { useDraftStore } from '@/lib/state/draftStore';
 import { useSnapshotStore } from '@/lib/state/snapshotStore';
 
@@ -26,10 +30,47 @@ const Draft = () => {
   const tags = useDraftStore((s) => s.tags);
   const makePick = useDraftStore((s) => s.makePick);
   const undo = useDraftStore((s) => s.undo);
+  const skipToMyTurn = useDraftStore((s) => s.skipToMyTurn);
+  const mode = useDraftStore((s) => s.mode);
+  const picks = useDraftStore((s) => s.picks);
   const snapshot = useSnapshotStore((s) => s.snapshot);
   const [filter, setFilter] = useState<PositionFilter>('ALL');
   const [confirmPlayer, setConfirmPlayer] = useState<Player | null>(null);
   const [confirmSlot, setConfirmSlot] = useState(1);
+
+  const onClockOverall = engine?.onClock.overall ?? nextOverall(picks, config.teams * config.rounds);
+  const userSlot = config.userSlot;
+  const picksLength = picks.length;
+
+  useEffect(() => {
+    if (mode !== 'mock') return;
+    if (!snapshot) return;
+    const total = config.teams * config.rounds;
+    if (onClockOverall > total) return;
+    if (slotOnClock(onClockOverall, config.teams) === userSlot) return;
+    const t = setTimeout(() => {
+      const cur = useDraftStore.getState();
+      const overall = nextOverall(cur.picks, total);
+      if (overall > total) return;
+      if (slotOnClock(overall, cur.config.teams) === cur.config.userSlot) return;
+      const taken = new Set(cur.picks.map((p) => p.playerId));
+      const available = snapshot.players.filter((p) => !taken.has(p.id));
+      if (available.length === 0) return;
+      const slot = slotOnClock(overall, cur.config.teams);
+      const rosterIds = cur.picks.filter((p) => p.teamSlot === slot).map((p) => p.playerId);
+      const playersById = new Map(snapshot.players.map((p) => [p.id, p]));
+      const id = sampleOpponentPick({
+        available,
+        rosterIds,
+        playersById,
+        overall,
+        cfg: cur.config,
+        rng: mulberry32(mockSeed(cur.draftStartedAt ?? '', overall)),
+      });
+      void cur.makePick(id);
+    }, 150);
+    return () => clearTimeout(t);
+  }, [mode, onClockOverall, userSlot, picksLength, snapshot, config.teams, config.rounds]);
 
   if (!engine || !snapshot) {
     return (
@@ -95,6 +136,8 @@ const Draft = () => {
         clock={clock}
         rankingsAsOf={formatRankingsAsOf(snapshot.fetchedAt)}
         onUndo={() => void undo()}
+        showSkip={mode === 'mock' && teamSlot !== config.userSlot}
+        onSkip={() => void skipToMyTurn(snapshot)}
       />
       <View style={split ? styles.split : styles.stack}>
         {list}
