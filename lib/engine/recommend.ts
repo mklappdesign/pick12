@@ -5,7 +5,7 @@ import { need } from './need';
 import { reasonText, type Rec } from './reasonText';
 import type { ExpBest } from './simulation';
 import { roundOf, survivalHorizon } from './snakeMath';
-import { buildTiers } from './tiers';
+import { buildTiers, type TierBand } from './tiers';
 import { effectiveVorp } from './vorp';
 
 export type { Rec };
@@ -40,8 +40,8 @@ export const needVorp = (
   effectiveVorp(player.position, player.posRank, baselines, round, cfg.rounds) *
   need(counts, player.position, round, cfg);
 
-const playerTier = (available: Player[], player: Player): number | undefined => {
-  const bands = buildTiers(available).get(player.position) ?? [];
+const playerTier = (tiers: Map<Position, TierBand[]>, player: Player): number | undefined => {
+  const bands = tiers.get(player.position) ?? [];
   return bands.find((b) => b.playerIds.includes(player.id))?.tier;
 };
 
@@ -75,15 +75,15 @@ const toRec = (
   player: Player,
   score: number,
   survival: number,
-  available: Player[],
   overall: number,
   cfg: DraftConfig,
+  tiers: Map<Position, TierBand[]>,
   reasonOpts?: Parameters<typeof reasonText>[1],
 ): Rec => {
   const rec: Rec = { player, score, survival, reason: '' };
   rec.reason = reasonText(rec, {
     horizon: survivalHorizon(overall, cfg) ?? undefined,
-    tier: playerTier(available, player),
+    tier: playerTier(tiers, player),
     ...reasonOpts,
   });
   return rec;
@@ -96,6 +96,7 @@ export const recommendSingle = (args: {
   overall: number;
   baselines: Record<Position, number>;
   sim: SimResult | null;
+  tiers?: Map<Position, TierBand[]>;
 }): Rec[] => {
   const { available, userCounts, cfg, overall, baselines, sim } = args;
   const round = roundOf(overall, cfg.teams);
@@ -108,7 +109,8 @@ export const recommendSingle = (args: {
     }))
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
-  return scored.map((s) => toRec(s.player, s.score, s.survival, available, overall, cfg));
+  const tiers = args.tiers ?? buildTiers(available);
+  return scored.map((s) => toRec(s.player, s.score, s.survival, overall, cfg, tiers));
 };
 
 const pairScore = (
@@ -157,6 +159,7 @@ export const recommendPair = (args: {
   overall: number;
   baselines: Record<Position, number>;
   sim: SimResult;
+  tiers?: Map<Position, TierBand[]>;
 }): {
   pair: [Player, Player];
   score: number;
@@ -195,14 +198,15 @@ export const recommendPair = (args: {
   const pair = orderPair(bestA, bestB, userCounts, round, cfg, baselines, sim);
   const nextOverall = overall + 1;
   const delta = runnerUpScore === -Infinity ? 0 : bestScore - runnerUpScore;
+  const tiers = args.tiers ?? buildTiers(available);
   const recs = [
-    toRec(pair[0], bestScore, sim.survival.get(pair[0].id) ?? 1, available, overall, cfg, {
+    toRec(pair[0], bestScore, sim.survival.get(pair[0].id) ?? 1, overall, cfg, tiers, {
       pairNow: true,
       otherPos: pair[1].position,
       nextOverall,
       delta,
     }),
-    toRec(pair[1], bestScore, sim.survival.get(pair[1].id) ?? 1, available, overall, cfg, {
+    toRec(pair[1], bestScore, sim.survival.get(pair[1].id) ?? 1, overall, cfg, tiers, {
       pairSafe: true,
       delta,
       nextOverall,

@@ -3,9 +3,10 @@ import type { Player } from '../data/types';
 import { adpOnlySurvival } from './adpOnlySurvival';
 import { deriveBaselines } from './baselines';
 import { projectPoints } from './projections';
+import { countByPos, type RosterCounts } from './need';
 import { mulberry32 } from './rng';
-import { sampleOpponentPick } from './sampleOpponentPick';
-import { slotOnClock } from './snakeMath';
+import { sampleOpponentPickFromIdx } from './sampleOpponentPick';
+import { roundOf, slotOnClock } from './snakeMath';
 import { vorp } from './vorp';
 
 export type ExpBest = { proj: number; vorp: number };
@@ -39,18 +40,22 @@ const snapshotExpBest = (
   available: Player[],
   taken: Uint8Array,
   baselines: Record<Position, number>,
+  dest: Record<Position, ExpBest>,
 ): Record<Position, ExpBest> => {
-  const best = emptyExpBest();
+  for (const pos of POSITIONS) {
+    dest[pos].proj = 0;
+    dest[pos].vorp = 0;
+  }
   for (let i = 0; i < available.length; i++) {
     if (taken[i]) continue;
     const p = available[i];
     const proj = projectPoints(p.position, p.posRank);
     const v = vorp(p.position, p.posRank, baselines);
-    const cur = best[p.position];
+    const cur = dest[p.position];
     if (proj > cur.proj) cur.proj = proj;
     if (v > cur.vorp) cur.vorp = v;
   }
-  return best;
+  return dest;
 };
 
 export const runSimulation = (args: {
@@ -68,7 +73,7 @@ export const runSimulation = (args: {
   degraded: boolean;
 } => {
   const { available, picks, cfg, rosters, fromOverall, toOverall, seed } = args;
-  const requestedSims = args.sims ?? 500;
+  const requestedSims = args.sims ?? 200;
   const availableIds = new Set(available.map((p) => p.id));
   const idToIndex = new Map(available.map((p, i) => [p.id, i]));
   const playersById = new Map(available.map((p) => [p.id, p]));
@@ -94,7 +99,7 @@ export const runSimulation = (args: {
     }
     return {
       survival,
-      expBestByPos: snapshotExpBest(available, initialTaken, baselines),
+      expBestByPos: snapshotExpBest(available, initialTaken, baselines, emptyExpBest()),
       degraded: true,
     };
   }
@@ -111,51 +116,82 @@ export const runSimulation = (args: {
   const survivalCounts = new Float64Array(available.length);
   const expProj = emptyExpBest();
   const expVorp = emptyExpBest();
-  const remainingBuf: Player[] = [];
+  const bestScratch = emptyExpBest();
+  const live: number[] = [];
+  for (let i = 0; i < available.length; i++) {
+    if (!initialTaken[i]) live.push(i);
+  }
+  const rem = new Uint16Array(available.length);
+  const loc = new Int32Array(available.length);
+  const taken = new Uint8Array(available.length);
+  const oppSlots = opponentOveralls.map((o) => slotOnClock(o, cfg.teams));
+  const oppRounds = opponentOveralls.map((o) => roundOf(o, cfg.teams));
+  const teamCount = cfg.teams;
+  const emptyCounts = (): RosterCounts => ({ QB: 0, RB: 0, WR: 0, TE: 0, K: 0, DST: 0 });
+  const baseCounts: RosterCounts[] = Array.from({ length: teamCount + 1 }, () => emptyCounts());
+  for (const [slot, ids] of rosters) baseCounts[slot] = countByPos(ids, playersById);
+  const workCounts: RosterCounts[] = Array.from({ length: teamCount + 1 }, () => emptyCounts());
   const start = Date.now();
   let planned = requestedSims;
   let completed = 0;
 
   for (let s = 0; s < planned; s++) {
     if (s === Math.floor(requestedSims / 2) && Date.now() - start > 80) {
-      planned = 250;
-      if (s >= 250) break;
+      planned = Math.min(planned, 250);
+      if (s >= planned) break;
     }
 
-    const taken = new Uint8Array(initialTaken);
-    const simRosters = new Map<number, string[]>();
-    for (const [slot, ids] of rosters) simRosters.set(slot, ids.slice());
+    taken.set(initialTaken);
+    for (let slot = 1; slot <= teamCount; slot++) {
+      const src = baseCounts[slot];
+      const dst = workCounts[slot];
+      dst.QB = src.QB;
+      dst.RB = src.RB;
+      dst.WR = src.WR;
+      dst.TE = src.TE;
+      dst.K = src.K;
+      dst.DST = src.DST;
+    }
 
-    for (const o of opponentOveralls) {
-      remainingBuf.length = 0;
-      for (let i = 0; i < available.length; i++) {
-        if (!taken[i]) remainingBuf.push(available[i]);
-      }
-      if (remainingBuf.length === 0) break;
-      const slot = slotOnClock(o, cfg.teams);
-      const rosterIds = simRosters.get(slot) ?? [];
-      if (!simRosters.has(slot)) simRosters.set(slot, rosterIds);
-      const pickedId = sampleOpponentPick({
-        available: remainingBuf,
-        rosterIds,
-        playersById,
-        overall: o,
+    let remLen = live.length;
+    for (let k = 0; k < remLen; k++) {
+      rem[k] = live[k];
+      loc[live[k]] = k;
+    }
+
+    for (let oi = 0; oi < opponentOveralls.length; oi++) {
+      if (remLen === 0) break;
+      const counts = workCounts[oppSlots[oi]];
+      const pickedId = sampleOpponentPickFromIdx({
+        available,
+        rem,
+        remLen,
+        counts,
+        overall: opponentOveralls[oi],
+        round: oppRounds[oi],
         cfg,
         rng,
       });
       const idx = idToIndex.get(pickedId);
       if (idx === undefined) continue;
       taken[idx] = 1;
-      rosterIds.push(pickedId);
+      counts[available[idx].position] += 1;
+      const at = loc[idx];
+      remLen -= 1;
+      const last = rem[remLen];
+      if (at !== remLen) {
+        rem[at] = last;
+        loc[last] = at;
+      }
     }
 
     for (let i = 0; i < available.length; i++) {
       if (!taken[i]) survivalCounts[i] += 1;
     }
-    const best = snapshotExpBest(available, taken, baselines);
+    snapshotExpBest(available, taken, baselines, bestScratch);
     for (const pos of POSITIONS) {
-      expProj[pos].proj += best[pos].proj;
-      expVorp[pos].vorp += best[pos].vorp;
+      expProj[pos].proj += bestScratch[pos].proj;
+      expVorp[pos].vorp += bestScratch[pos].vorp;
     }
     completed += 1;
   }

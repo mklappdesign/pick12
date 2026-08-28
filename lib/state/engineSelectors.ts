@@ -96,7 +96,7 @@ export const computeEngineState = (snapshot: Snapshot, draft: DraftState): Engin
     sim = null;
     recommendations = [];
   } else if (horizon === null) {
-    recommendations = recommendSingle({ ...recArgs, sim: null });
+    recommendations = recommendSingle({ ...recArgs, sim: null, tiers });
   } else {
     const firstOfPair = isFirstOfPair(overall, cfg);
     const fromOverall = overall;
@@ -110,10 +110,10 @@ export const computeEngineState = (snapshot: Snapshot, draft: DraftState): Engin
       seed: djb2(key),
     });
     if (firstOfPair && available.length >= 2) {
-      pair = recommendPair({ ...recArgs, sim });
+      pair = recommendPair({ ...recArgs, sim, tiers });
       recommendations = pair.recs;
     } else {
-      recommendations = recommendSingle({ ...recArgs, sim });
+      recommendations = recommendSingle({ ...recArgs, sim, tiers });
     }
   }
 
