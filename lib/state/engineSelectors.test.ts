@@ -4,7 +4,7 @@ import type { Player, Snapshot } from '../data/types';
 import { runSimulation } from '../engine/simulation';
 import { applyEditPick, applyPick, applyStart, emptyDraft } from './draftActions';
 import { nextOverall } from './draftTypes';
-import { computeEngineState, djb2 } from './engineSelectors';
+import { computeEngineState, djb2, playersForSimulation } from './engineSelectors';
 
 const player = (
   id: string,
@@ -60,6 +60,31 @@ test('editPick revision bump invalidates memo', () => {
   const edited = applyEditPick(draft, 1, 'rb1');
   const c = computeEngineState(snapshot, edited);
   assert.notEqual(a, c);
+});
+
+test('simulation board keeps drafted ids and drops deep leftovers', () => {
+  const picked = new Set(['deep-picked']);
+  const board = playersForSimulation(
+    [
+      player('star', 'RB', 1, 1, 1),
+      player('deep-picked', 'WR', 450, 90, 450),
+      player('deep-bench', 'WR', 451, 91, 451),
+      player('adp-riser', 'RB', 400, 80, 20),
+    ],
+    picked,
+    12,
+  );
+  const ids = board.map((p) => p.id).sort();
+  assert.deepEqual(ids, ['adp-riser', 'deep-picked', 'star']);
+});
+
+test('engine list stays full while sim omits deep leftovers', () => {
+  const deep = player('deep-bench', 'RB', 450, 90, 450);
+  const snapshot: Snapshot = { fetchedAt: 't', players: [...dummySnapshot().players, deep] };
+  const draft = applyStart(emptyDraft(), 'real', 't');
+  const engine = computeEngineState(snapshot, draft);
+  assert.ok(engine.available.some((p) => p.id === 'deep-bench'));
+  assert.equal(engine.sim?.survival.has('deep-bench'), false);
 });
 
 test('opponent on the clock includes that pick in survival', () => {

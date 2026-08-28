@@ -36,6 +36,21 @@ export const djb2 = (s: string): number => {
 
 let cache: { key: string; value: EngineState } | null = null;
 
+/** Keep the full list in the UI; sim only the draftable head of the board. */
+export const SIM_OVERALL_RANK_CAP = 300;
+
+export const playersForSimulation = (
+  players: Player[],
+  pickedIds: Set<string>,
+  toOverall: number,
+): Player[] => {
+  const adpCap = toOverall + 24;
+  return players.filter(
+    (p) =>
+      pickedIds.has(p.id) || p.overallRank <= SIM_OVERALL_RANK_CAP || (p.adp != null && p.adp <= adpCap),
+  );
+};
+
 const foldRosters = (draft: DraftState): Map<number, string[]> => {
   const rosters = new Map<number, string[]>();
   for (const pick of draft.picks) {
@@ -101,7 +116,7 @@ export const computeEngineState = (snapshot: Snapshot, draft: DraftState): Engin
     const firstOfPair = isFirstOfPair(overall, cfg);
     const fromOverall = overall;
     sim = runSimulation({
-      available: snapshot.players,
+      available: playersForSimulation(snapshot.players, picked, horizon),
       picks: draft.picks.map((p) => ({ overall: p.overall, playerId: p.playerId })),
       cfg,
       rosters,

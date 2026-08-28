@@ -17,6 +17,9 @@ Scan the QR code with Expo Go on an iPad (or open the project in Expo Go on the 
 - `pnpm typecheck` — strict TypeScript
 - `pnpm test` — unit tests (`lib/**/*.test.ts`)
 - `pnpm test:e2e` — scripted 180-pick mock draft against `assets/snapshot.json` (offline)
+- `pnpm refresh-snapshot` — rebuild `assets/snapshot.json` from `assets/fantasypros-2026.csv` + Sleeper
+
+Rankings are FantasyPros 2026 expert consensus (ECR). ADP used by the opponent model is ECR plus the sheet’s ECR vs ADP delta.
 
 ## iPad (Expo Go)
 

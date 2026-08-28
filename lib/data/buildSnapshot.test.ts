@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import ffc from './fixtures/ffc.json';
 import sleeper from './fixtures/sleeper.json';
-import { mergeSources, validateSnapshot } from './buildSnapshot';
+import { mergeFantasyPros, mergeSources, validateSnapshot } from './buildSnapshot';
 import { nameKey } from './normalizeName';
 import type { Player, Position } from './types';
 
@@ -51,6 +51,51 @@ test('missing team DSTs appended with adp null', () => {
   const dsts = SNAP().players.filter((p) => p.position === 'DST');
   assert.ok(dsts.length >= 32);
   assert.ok(dsts.some((p) => p.adp === null));
+});
+
+test('FantasyPros merge keeps ECR overallRank and matches Sleeper', () => {
+  const snapshot = mergeFantasyPros(
+    [
+      {
+        rk: 1,
+        name: "Ja'Marr Chase",
+        team: 'CIN',
+        position: 'WR',
+        posRank: 1,
+        bye: 6,
+        ecrVsAdp: 2,
+      },
+      {
+        rk: 158,
+        name: 'Houston Texans',
+        team: 'HOU',
+        position: 'DST',
+        posRank: 1,
+        bye: 8,
+        ecrVsAdp: -59,
+      },
+      {
+        rk: 400,
+        name: 'Unmatchable Testguy',
+        team: 'FA',
+        position: 'WR',
+        posRank: 80,
+        bye: 10,
+        ecrVsAdp: null,
+      },
+    ],
+    sleeper as never,
+    '2026-08-27T00:00:00.000Z',
+  );
+  const chase = snapshot.players.find((p) => p.name === "Ja'Marr Chase");
+  assert.equal(chase?.overallRank, 1);
+  assert.equal(chase?.adp, 3);
+  assert.equal(chase?.sleeperMatched, true);
+  const dst = snapshot.players.find((p) => p.team === 'HOU' && p.position === 'DST');
+  assert.equal(dst?.id, 'HOU');
+  const orphan = snapshot.players.find((p) => p.name === 'Unmatchable Testguy');
+  assert.equal(orphan?.sleeperMatched, false);
+  assert.match(orphan!.id, /^fp:/);
 });
 
 test('validateSnapshot rejects too few players', () => {

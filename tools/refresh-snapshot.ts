@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 
 import { BYE_WEEKS_2026, NFL_TEAMS } from '../lib/data/byeWeeks2026';
 import { buildSnapshot, validateSnapshot } from '../lib/data/buildSnapshot';
+import { parseFantasyProsCsv } from '../lib/data/fantasyPros';
 import { nameKey } from '../lib/data/normalizeName';
 import type { Player, Position, Snapshot } from '../lib/data/types';
 
@@ -46,6 +47,8 @@ const existingSnapshotIsUsable = (path: string): boolean => {
 };
 
 const main = async () => {
+  const csv = readFileSync(resolve('assets/fantasypros-2026.csv'), 'utf8');
+  writeFileSync(resolve('assets/fantasypros-2026.json'), JSON.stringify(parseFantasyProsCsv(csv)));
   const out = resolve('assets/snapshot.json');
   let snapshot: Snapshot;
   try {

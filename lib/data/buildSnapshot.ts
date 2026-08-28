@@ -1,4 +1,6 @@
+import fpRankings from '../../assets/fantasypros-2026.json';
 import { BYE_WEEKS_2026, NFL_TEAMS } from './byeWeeks2026';
+import { adpFromRank, type FantasyProsRow } from './fantasyPros';
 import { nameKey } from './normalizeName';
 import type { Player, Position, Snapshot } from './types';
 
@@ -242,6 +244,88 @@ export const mergeSources = (
   return { fetchedAt, players: assignRanks(working) };
 };
 
+export const mergeFantasyPros = (
+  rankings: FantasyProsRow[],
+  sleeper: SleeperDb,
+  fetchedAt: string,
+): Snapshot => {
+  const teamBye = new Map<string, number>();
+  for (const row of rankings) {
+    if (row.team && row.bye != null) teamBye.set(row.team, row.bye);
+  }
+
+  const index = buildSleeperIndex(sleeper);
+  const working: Player[] = [];
+  const dstTeams = new Set<string>();
+
+  for (const row of rankings) {
+    let matched: SleeperPlayer | undefined;
+    if (row.position === 'DST') {
+      const byTeam = sleeper[row.team];
+      if (byTeam && isDefPlayer(byTeam)) matched = byTeam;
+    } else {
+      const candidates = (index.get(nameKey(row.name)) ?? []).filter((p) =>
+        sleeperHasPosition(p, row.position),
+      );
+      matched = pickCandidate(candidates, row.team);
+    }
+
+    const team = matched?.team ?? row.team;
+    const bye = resolveBye(row.bye, team, teamBye);
+    if (row.position === 'DST' && team) dstTeams.add(team);
+
+    working.push({
+      id: matched?.player_id ?? `fp:${row.rk}`,
+      ffcId: null,
+      name: row.name,
+      searchKey: nameKey(row.name),
+      position: row.position,
+      team,
+      bye,
+      adp: adpFromRank(row),
+      adpStdev: 4,
+      timesDrafted: null,
+      overallRank: row.rk,
+      posRank: row.posRank,
+      injuryStatus: matched ? sleeperInjury(matched) : null,
+      sleeperMatched: Boolean(matched),
+    });
+  }
+
+  let nextRank = working.reduce((m, p) => Math.max(m, p.overallRank), 0);
+  const dstPos = working.filter((p) => p.position === 'DST').length;
+  let dstRank = dstPos;
+  for (const code of NFL_TEAMS) {
+    if (dstTeams.has(code)) continue;
+    const def = sleeper[code];
+    if (!def || !isDefPlayer(def)) continue;
+    const name = sleeperDisplayName(def) || `${code} Defense`;
+    const team = def.team ?? code;
+    dstTeams.add(code);
+    dstRank += 1;
+    nextRank += 1;
+    working.push({
+      id: code,
+      ffcId: null,
+      name,
+      searchKey: nameKey(name),
+      position: 'DST',
+      team,
+      bye: resolveBye(null, team, teamBye),
+      adp: null,
+      adpStdev: null,
+      timesDrafted: null,
+      overallRank: nextRank,
+      posRank: dstRank,
+      injuryStatus: null,
+      sleeperMatched: true,
+    });
+  }
+
+  working.sort((a, b) => a.overallRank - b.overallRank);
+  return { fetchedAt, players: working };
+};
+
 export const validateSnapshot = (s: Snapshot): void => {
   const fetched = Date.parse(s.fetchedAt);
   if (!Number.isFinite(fetched)) {
@@ -270,9 +354,8 @@ const fetchJson = async (url: string, fetchFn: typeof fetch): Promise<unknown> =
 };
 
 export const buildSnapshot = async (fetchFn: typeof fetch = fetch): Promise<Snapshot> => {
-  const ffc = (await fetchJson(FFC_ADP_URL, fetchFn)) as FfcResponse;
   const sleeper = (await fetchJson(SLEEPER_PLAYERS_URL, fetchFn)) as SleeperDb;
-  const snapshot = mergeSources(ffc, sleeper, new Date().toISOString());
+  const snapshot = mergeFantasyPros(fpRankings as FantasyProsRow[], sleeper, new Date().toISOString());
   validateSnapshot(snapshot);
   return snapshot;
 };

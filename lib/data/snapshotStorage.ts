@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { buildSnapshot, validateSnapshot } from './buildSnapshot';
 import type { Snapshot } from './types';
 
-export const SNAPSHOT_KEY = '@pick12/snapshot';
+export const SNAPSHOT_KEY = '@pick12/snapshot/fp2026';
 
 export const loadSnapshot = async (): Promise<{ snapshot: Snapshot; source: 'stored' | 'bundled' }> => {
   try {
