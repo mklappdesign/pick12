@@ -1,13 +1,21 @@
 import { StyleSheet, View } from 'react-native';
-import { Chip, IconButton, Text } from 'react-native-paper';
+import { Button, Chip, IconButton, Text } from 'react-native-paper';
 
 export type DraftHeaderProps = {
   clock: string;
   rankingsAsOf: string;
   onUndo: () => void;
+  showSkip?: boolean;
+  onSkip?: () => void;
 };
 
-export const DraftHeader = ({ clock, rankingsAsOf, onUndo }: DraftHeaderProps) => (
+export const DraftHeader = ({
+  clock,
+  rankingsAsOf,
+  onUndo,
+  showSkip,
+  onSkip,
+}: DraftHeaderProps) => (
   <View style={styles.row}>
     <View style={styles.clock}>
       <Text variant="titleSmall">{clock}</Text>
@@ -15,6 +23,11 @@ export const DraftHeader = ({ clock, rankingsAsOf, onUndo }: DraftHeaderProps) =
         {rankingsAsOf}
       </Chip>
     </View>
+    {showSkip ? (
+      <Button compact onPress={onSkip} accessibilityLabel="Skip to my turn">
+        Skip to my turn
+      </Button>
+    ) : null}
     <IconButton
       icon="undo"
       accessibilityLabel="Undo"

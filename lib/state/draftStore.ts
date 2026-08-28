@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 
 import type { DraftConfig } from '../../constants/league';
+import type { Snapshot } from '../data/types';
+import { skipToUserTurn } from '../engine/runMockToUser';
 import {
   applyEditPick,
   applyPick,
@@ -27,6 +29,7 @@ export type DraftStore = DraftState & {
   setTeamNames: (teamNames: string[]) => Promise<void>;
   resetDraft: () => Promise<void>;
   startDraft: (mode: DraftMode) => Promise<void>;
+  skipToMyTurn: (snapshot: Snapshot) => Promise<void>;
 };
 
 const writeDraft = async (get: () => DraftStore): Promise<void> => {
@@ -76,6 +79,10 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
   },
   startDraft: async (mode) => {
     set(applyStart(get(), mode, new Date().toISOString()));
+    await writeDraft(get);
+  },
+  skipToMyTurn: async (snapshot) => {
+    set(skipToUserTurn({ state: get(), snapshot }));
     await writeDraft(get);
   },
 }));
